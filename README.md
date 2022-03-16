@@ -4,6 +4,8 @@
 
 An arbitrary highlighter that lets you pick individual class, parameter, or other element names to highlight across your projects. It makes it easier to find and identify objects inside your project. You can also use it for comment annotations, dividers, and more.
 
+Free download on [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=DaxPandhi.Highlighter1)
+
 **Features**
 - Highlight any arbitrary term
 - 4 different highlight shapes
