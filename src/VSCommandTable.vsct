@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+  <Include href="KnownImageIds.vsct"/>
+  <Include href="VSGlobals.vsct"/>
+
+  <Commands package="Highlighter">
+    <Groups>
+      <Group guid="Highlighter" id="MenuGroup" priority="0x0600">
+        <Parent guid="VSMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+      </Group>
+    </Groups>
+
+    <!--This section defines the elements the user can interact with, like a menu command or a button
+        or combo box in a toolbar. -->
+    <Buttons>
+      <Button guid="Highlighter" id="CreateHighlight" priority="0x0100" type="Button">
+        <Parent guid="Highlighter" id="MenuGroup" />
+        <Icon guid="ImageCatalogGuid" id="AddKeyframe" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <ButtonText>Create/Edit Highlight Rule</ButtonText>
+          <LocCanonicalName>Highlighter.CreateHighlight</LocCanonicalName>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <KeyBindings>
+    <KeyBinding guid="Highlighter"
+                id="CreateHighlight"
+                mod1="Control"
+                key1="VK_ADD"
+                editor="guidVSStd97" />
+  </KeyBindings>
+
+  <Symbols>
+    <GuidSymbol name="Highlighter" value="{e6f482eb-859f-4dab-928c-fbd2f0201cbb}">
+      <IDSymbol name="MenuGroup" value="0x0001" />
+      <IDSymbol name="CreateHighlight" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

@@ -1,0 +1,148 @@
+﻿<platform:DialogWindow x:Class="Highlighter.Commands.EditColor"
+                       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                       xmlns:platform="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
+                       xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+                       xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"
+                       Title="Modify Tag"
+                       Width="480"
+                       toolkit:Themes.UseVsTheme="False"
+                       Background="{DynamicResource {x:Static shell:VsBrushes.CommandBarGradientKey}}"
+                       Foreground="{DynamicResource {x:Static shell:VsBrushes.WindowTextKey}}"
+                       ResizeMode="NoResize"
+                       SizeToContent="Height"
+                       Topmost="True"
+                       WindowStartupLocation="CenterScreen"
+                       mc:Ignorable="d">
+    <DockPanel>
+        <StackPanel Margin="8,8,8,8"
+                    HorizontalAlignment="Right"
+                    DockPanel.Dock="Bottom"
+                    Orientation="Horizontal">
+            <Button x:Name="btnModify"
+                    Padding="16,2,16,2"
+                    Content="Modify"
+                    IsDefault="True" />
+            <Button x:Name="btnCancel"
+                    Margin="8,0,0,0"
+                    Padding="16,2,16,2"
+                    Content="Cancel"
+                    IsCancel="True" />
+        </StackPanel>
+
+        <Border MinHeight="48"
+                Margin="16,1,16,0"
+                Background="{DynamicResource {x:Static shell:VsBrushes.ComboBoxBackgroundKey}}"
+                BorderBrush="{DynamicResource {x:Static shell:VsBrushes.ComboBoxBorderKey}}"
+                BorderThickness="1"
+                CornerRadius="2"
+                DockPanel.Dock="Bottom">
+
+            <Grid x:Name="previewGrid" MaxHeight="512">
+                <Rectangle x:Name="r"
+                           Height="14"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           RadiusX="2"
+                           RadiusY="2"
+                           StrokeThickness="3" />
+                <TextBlock x:Name="t"
+                           MaxWidth="512"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontFamily="Consolas"
+                           FontSize="14"
+                           Foreground="{DynamicResource {x:Static platform:CommonControlsColors.TextBoxTextBrushKey}}"
+                           Text="Sample Text"
+                           TextTrimming="CharacterEllipsis" />
+            </Grid>
+        </Border>
+
+        <Border Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" DockPanel.Dock="Top">
+
+            <StackPanel Margin="8" Orientation="Horizontal">
+                <Label VerticalAlignment="Center" Content="Shape" />
+                <ComboBox x:Name="cboShape"
+                          Width="110"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          SelectedIndex="0">
+                    <ComboBoxItem Content="Tag" />
+                    <ComboBoxItem Content="Underline Tag" />
+                    <ComboBoxItem Content="Full Line" />
+                    <ComboBoxItem Content="Full Underline" />
+                </ComboBox>
+
+                <Label VerticalAlignment="Center" Content="Blur" />
+                <ComboBox x:Name="cboBlur"
+                          Width="110"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          SelectedIndex="0">
+                    <ComboBoxItem Content="None" />
+                    <ComboBoxItem Content="Low" />
+                    <ComboBoxItem Content="Medium" />
+                    <ComboBoxItem Content="High" />
+                    <ComboBoxItem Content="Ultra" />
+                </ComboBox>
+
+                <CheckBox x:Name="chkActive"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          Content="Rule is active" />
+            </StackPanel>
+        </Border>
+        <ListBox x:Name="lstColors"
+                 Width="460"
+                 MinHeight="60"
+                 Margin="8,8,8,8"
+                 Background="{DynamicResource {x:Static platform:ThemedDialogColors.ListBoxBrushKey}}"
+                 BorderThickness="0">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel MaxWidth="460"
+                               IsItemsHost="True"
+                               ItemHeight="28"
+                               ItemWidth="28"
+                               ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                               ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.Resources>
+                <Style d:IsControlPart="True" TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <Border x:Name="SelectionBorder"
+                                        Width="Auto"
+                                        Height="Auto"
+                                        Margin="2"
+                                        BorderBrush="{TemplateBinding Foreground}"
+                                        BorderThickness="3"
+                                        Opacity="0.65">
+                                    <Border x:Name="InnerBorder"
+                                            Background="{TemplateBinding Foreground}"
+                                            BorderThickness="0"
+                                            Opacity="0.5" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="SelectionBorder" Property="BorderBrush" Value="#ff9955" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="SelectionBorder" Property="BorderBrush" Value="#ffcc00" />
+                                        <Setter TargetName="SelectionBorder" Property="CornerRadius" Value="32" />
+                                        <Setter TargetName="InnerBorder" Property="CornerRadius" Value="34" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListBox.Resources>
+        </ListBox>
+    </DockPanel>
+</platform:DialogWindow>
