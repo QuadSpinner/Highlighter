@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="QuadSpinner.Highlighter.4b62" Version="1.0.0.6" Language="en-US" Publisher="QuadSpinner" />
+        <Identity Id="QuadSpinner.Highlighter.4b62" Version="1.0.0.6" Language="en-US" Publisher="Dax Pandhi" />
         <DisplayName>Highlighter</DisplayName>
         <Description xml:space="preserve">An arbitrary highlighter that lets you pick individual class, parameter, or other element names to highlight across your projects. It makes it easier to find and identify objects inside your project. You can also use it for comment annotations, dividers, and more.</Description>
         <MoreInfo>https://github.com/QuadSpinner/Highlighter</MoreInfo>
