@@ -7,7 +7,10 @@ An arbitrary highlighter that lets you pick individual class, parameter, or othe
 **Features**
 - Highlight any arbitrary term
 - 4 different highlight shapes
+- Toggle highlights easily
 - Performant even on older machines and VMs
+
+> Requires Visual Studio 2022 Community Edition or higher. It should work in all text editor surfaces.
 
 ![](images/example_code.png)
 
@@ -25,6 +28,8 @@ If the selection is an existing highlight, then you will be able to edit it. If 
 
 You can choose the tag shape, optional blur, and color. The Highlight Editor window shows you a preview to help you choose the right shape.
 
+For an existing rule, you can also uncheck "Rule is Active" to disable the rule without deleting it. To delete a rule, see Options below.
+
 ## Highlight Shapes
 
 Highlighter can create 4 different shapes, 4 option blur levels, using 40 different colors. You can also enter a hex value manually in the Options. These colors are chosen specifically to give you decent visibility whether using a dark or light theme.
@@ -40,7 +45,7 @@ There are 12 built in rules for creating dividers. `//1` through `//6` and `//#`
 
 ![](images/options.png)
 
-The Options let you edit the rules en mass, as well as use color values not in the default palette.
+The Options let you edit the rules en mass, as well as use color values not in the default palette. You can delete highlights here.
 
 # Coming Soon
 
