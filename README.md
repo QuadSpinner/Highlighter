@@ -1,8 +1,13 @@
-![](images/cover.png)
+![](images/cover-git.png)
 
 # QuadSpinner Highlighter for Visual Studio 2022
 
 An arbitrary highlighter that lets you pick individual class, parameter, or other element names to highlight across your projects. It makes it easier to find and identify objects inside your project. You can also use it for comment annotations, dividers, and more.
+
+**Features**
+- Highlight any arbitrary term
+- 4 different highlight shapes
+- Performant even on older machines and VMs
 
 ![](images/example_code.png)
 
@@ -29,7 +34,7 @@ There are 12 built in rules for creating dividers. `//1` through `//6` and `//#`
 | Dark | Light|
 | --- | --- |
 | ![](images/example_dark.png) | ![](images/example_light.png) | 
-| ![](images/dividers_dark.png) | ![](images/dividers_dark.png) |
+| ![](images/dividers_dark.png) | ![](images/dividers_light.png) |
 
 ## Options
 
@@ -37,9 +42,11 @@ There are 12 built in rules for creating dividers. `//1` through `//6` and `//#`
 
 The Options let you edit the rules en mass, as well as use color values not in the default palette.
 
-
+# Coming Soon
 
 ## Solution-scoped rules
 
-Coming soon: Highlight rules scoped to the current solution and made portable for transport.
+Highlight rules scoped to the current solution and made portable for transport.
+
+More options.
 
