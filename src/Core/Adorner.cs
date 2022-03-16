@@ -53,7 +53,18 @@ namespace Highlighter.Core
             this.view.LayoutChanged += OnLayoutChanged;
         }
 
-        private void HighlighterOptions_Saved(Options obj) => RefreshCriteria();
+        private void HighlighterOptions_Saved(Options obj)
+        {
+            RefreshCriteria();
+
+            layer.RemoveAllAdornments();
+
+            foreach (ITextViewLine line in view.TextViewLines)
+            {
+                if (line.VisibilityState == VisibilityState.FullyVisible)
+                    CreateVisuals(line);
+            }
+        }
 
         private void RefreshCriteria()
         {
@@ -184,9 +195,9 @@ namespace Highlighter.Core
             if (r.Fill.CanFreeze)
                 r.Fill.Freeze();
 
-            if(r.Stroke is {CanFreeze: true})
+            if (r.Stroke is { CanFreeze: true })
                 r.Stroke.Freeze();
-            
+
             if (ct.IsUnder())
             {
                 Canvas.SetTop(r, markerGeometry.Bounds.Top + markerGeometry.Bounds.Height - 2);
