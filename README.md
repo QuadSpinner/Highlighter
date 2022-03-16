@@ -4,6 +4,8 @@
 
 An arbitrary highlighter that lets you pick individual class, parameter, or other element names to highlight across your projects. It makes it easier to find and identify objects inside your project. You can also use it for comment annotations, dividers, and more.
 
+Free download on [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=DaxPandhi.Highlighter1)
+
 **Features**
 - Highlight any arbitrary term
 - 4 different highlight shapes
@@ -20,7 +22,7 @@ An arbitrary highlighter that lets you pick individual class, parameter, or othe
 
 ![](images/menu.png)
 
-To create a highlight, select the desired word or phrase and press `Ctrl` + `Keypad Plus`. Or you can right-click the selection and click `Create/Edit Highlight`.
+To create a highlight, select the desired word or phrase and press `Ctrl + Num Plus`. Or you can right-click the selection and click `Create/Edit Highlight`.
 
 If the selection is an existing highlight, then you will be able to edit it. If it is a new one, you get to define its shape.
 
