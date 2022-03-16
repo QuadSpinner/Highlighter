@@ -20,7 +20,7 @@ An arbitrary highlighter that lets you pick individual class, parameter, or othe
 
 ![](images/menu.png)
 
-To create a highlight, select the desired word or phrase and press `Ctrl` + `Keypad Plus`. Or you can right-click the selection and click `Create/Edit Highlight`.
+To create a highlight, select the desired word or phrase and press `Ctrl + Num Plus`. Or you can right-click the selection and click `Create/Edit Highlight`.
 
 If the selection is an existing highlight, then you will be able to edit it. If it is a new one, you get to define its shape.
 
