@@ -151,6 +151,7 @@ namespace Highlighter.Commands
                 else
                 {
                     r.Height = t.ActualHeight;
+                    r.Margin = new Thickness(0);
                 }
             }
             catch (Exception ex)
