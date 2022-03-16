@@ -22,21 +22,24 @@ You can choose the tag shape, optional blur, and color. The Highlight Editor win
 
 ## Highlight Shapes
 
+Highlighter can create 4 different shapes, 4 option blur levels, using 40 different colors. You can also enter a hex value manually in the Options. These colors are chosen specifically to give you decent visibility whether using a dark or light theme.
 
+There are 12 built in rules for creating dividers. `//1` through `//6` and `//#` through `//######` create full line dividers. You modify these rules or make your own.
 
-![](images/example_dark.png)
-![](images/example_light.png)
-
-## Dividers
-
-Highlighter ships with 12 divider highlight rules.
-
-![](images/dividers_dark.png)
-![](images/dividers_dark.png)
+| Dark | Light|
+| --- | --- |
+| ![](images/example_dark.png) | ![](images/example_light.png) | 
+| ![](images/dividers_dark.png) | ![](images/dividers_dark.png) |
 
 ## Options
 
 ![](images/options.png)
 
+The Options let you edit the rules en mass, as well as use color values not in the default palette.
 
+
+
+## Solution-scoped rules
+
+Coming soon: Highlight rules scoped to the current solution and made portable for transport.
 
