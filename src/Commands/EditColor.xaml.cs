@@ -44,6 +44,8 @@ namespace Highlighter.Commands
             cboBlur.SelectedIndex = (int)TagToEdit.Blur;
             //txtCriteria.Text = TagToEdit.Criteria;
             chkActive.IsChecked = TagToEdit.IsActive;
+            chkCaseSensitive.IsChecked = TagToEdit.IsCaseSensitive;
+            chkWholeWordsMode.IsChecked = TagToEdit.IsWholeWordsMode;
 
             //txtCriteria.TextChanged += (_, _) => CreatePreview();
             cboBlur.SelectionChanged += (_, _) => CreatePreview();
@@ -65,6 +67,8 @@ namespace Highlighter.Commands
             TagToEdit.Blur = (BlurIntensity)cboBlur.SelectedIndex;
             //TagToEdit.Criteria = txtCriteria.Text;
             TagToEdit.IsActive = chkActive.IsChecked == true;
+            TagToEdit.IsCaseSensitive = chkCaseSensitive.IsChecked == true;
+            TagToEdit.IsWholeWordsMode = chkWholeWordsMode.IsChecked == true;
             TagToEdit.Color = lstColors.SelectedItem != null ? (Color) (lstColors.SelectedItem as ListBoxItem).Tag : TagToEdit.Color;
             DialogResult = true;
             Close();

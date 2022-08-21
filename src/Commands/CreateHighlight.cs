@@ -44,7 +44,7 @@ namespace Highlighter.Commands
                 options.ColorTags = tags.ToArray();
                 await options.SaveAsync();
 
-                dte.ActiveDocument.ReplaceText(selection, selection, (int) vsFindOptions.vsFindOptionsMatchCase | (int) vsFindOptions.vsFindOptionsMatchWholeWord);
+                dte.ActiveDocument.ReplaceText(selection, selection);
             }
         }
     }

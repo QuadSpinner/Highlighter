@@ -22,7 +22,7 @@ namespace Highlighter.Core
         private Thickness tBlur = new(2, -3, 2, -3);
         private Thickness tNone = new(0, 0, 0, 0);
         private Options options;
-        private char[] firstChars;
+        private (char Character, bool IsCaseSensitive)[] firstChars;
         private IEnumerable<HighlightTag> tags;
         private Performance performance = Performance.Normal;
 
@@ -60,7 +60,7 @@ namespace Highlighter.Core
             performance = options.Performance;
             tags = options.ColorTags.Where(x => x.IsActive);
             //string path = Path.GetDirectoryName(VS.Solutions.GetCurrentSolution().FullPath) + "\\.vs\\Highlighter.xml";
-            firstChars = options.ColorTags.Select(k => k.Criteria[0]).Distinct().ToArray();
+            firstChars = options.ColorTags.Select(k => (k.IsCaseSensitive ? k.Criteria[0] : char.ToUpperInvariant(k.Criteria[0]) , k.IsCaseSensitive)).Distinct().ToArray();
         }
 
         internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
@@ -85,21 +85,20 @@ namespace Highlighter.Core
             //## Main Loop
             for (int i = start; i < end; i++)
             {
-                if (firstChars.Contains(view.TextSnapshot[i]))
+                if (FirstCharsContains(view.TextSnapshot[i]))
                 {
                     foreach (var tag in tags)
                     {
                         string keyword = tag.Criteria.Trim();
-
-                        if (view.TextSnapshot[i] == keyword[0] &&
+                        if (FirstCharacterEquals(view.TextSnapshot[i], keyword[0], tag) &&
                             i <= end - keyword.Length &&
-                            view.TextSnapshot.GetText(i, keyword.Length) == keyword &&
-                            Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(Math.Max(0, i - 1), 1))) &&
-                            Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(i + keyword.Length, 1))))
+                            CompareWords(view.TextSnapshot.GetText(i, keyword.Length), keyword, tag)
+                            && CheckWholeWordsMatch(view.TextSnapshot, i, keyword, tag))
                         {
                             SnapshotSpan span = new(view.TextSnapshot, Span.FromBounds(i, i + keyword.Length));
 
-                            Geometry markerGeometry = textViewLines.GetMarkerGeometry(span, true, tag.Blur == BlurIntensity.None ? tNone : tBlur);
+                            Geometry markerGeometry = textViewLines.GetMarkerGeometry(span, true,
+                                tag.Blur == BlurIntensity.None ? tNone : tBlur);
 
                             if (markerGeometry != null)
                             {
@@ -113,6 +112,57 @@ namespace Highlighter.Core
                         }
                     }
                 }
+            }
+        }
+
+        private bool FirstCharacterEquals(char text, char keyword, HighlightTag tag)
+        {
+            if (tag.IsCaseSensitive)
+            {
+                return text == keyword;
+            }
+            else
+            {
+                return char.ToUpperInvariant(text) == char.ToUpperInvariant(keyword);
+            }
+        }
+
+        private bool FirstCharsContains(char firstCharacterOfTextSnapshot)
+        {
+            foreach (var charAndSensitivity in firstChars)
+            {
+                if (charAndSensitivity.Character == firstCharacterOfTextSnapshot ||
+                    !charAndSensitivity.IsCaseSensitive && charAndSensitivity.Character == char.ToUpperInvariant(firstCharacterOfTextSnapshot))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool CompareWords(string text, string keyword, HighlightTag tag)
+        {
+            if (tag.IsCaseSensitive)
+            {
+                return text == keyword;
+            }
+            else
+            {
+                return string.Equals(text, keyword, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        public bool CheckWholeWordsMatch(ITextSnapshot textSnapshot, int i, string keyword, HighlightTag tag)
+        {
+            if (!tag.IsWholeWordsMode)
+            {
+                return true;
+            }
+            else
+            {
+                return Helper.escapes.Contains(Convert.ToChar(textSnapshot.GetText(Math.Max(0, i - 1), 1))) &&
+                       Helper.escapes.Contains(Convert.ToChar(textSnapshot.GetText(i + keyword.Length, 1)));
             }
         }
 
@@ -184,9 +234,9 @@ namespace Highlighter.Core
             if (r.Fill.CanFreeze)
                 r.Fill.Freeze();
 
-            if(r.Stroke is {CanFreeze: true})
+            if (r.Stroke is { CanFreeze: true })
                 r.Stroke.Freeze();
-            
+
             if (ct.IsUnder())
             {
                 Canvas.SetTop(r, markerGeometry.Bounds.Top + markerGeometry.Bounds.Height - 2);
