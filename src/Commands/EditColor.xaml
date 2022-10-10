@@ -7,7 +7,7 @@
                        xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
                        xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"
                        Title="Modify Tag"
-                       Width="480"
+                       Width="580"
                        toolkit:Themes.UseVsTheme="False"
                        Background="{DynamicResource {x:Static shell:VsBrushes.CommandBarGradientKey}}"
                        Foreground="{DynamicResource {x:Static shell:VsBrushes.WindowTextKey}}"
@@ -97,6 +97,11 @@
                           VerticalAlignment="Center"
                           ToolTip="Enable or disable the rule. This will not delete the rule."
                           Content="Active" />
+
+                <CheckBox x:Name="chkPartial"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          Content="Partial Match" />
 
                 <CheckBox x:Name="chkGlobal"
                           Margin="0,0,8,0"

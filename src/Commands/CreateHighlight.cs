@@ -55,7 +55,9 @@ namespace Highlighter.Commands
                 // Appropriate title
                 Title = isNew ? "Create Highlight Rule" : "Modify Highlight Rule",
                 // Whether rule is global or not, disallow editing of existing rule
-                chkGlobal = { IsChecked = isNew ? Remember.LastGlobal : !notGlobal, IsEnabled = isNew }
+                chkGlobal = { IsChecked = isNew ? Remember.LastGlobal : !notGlobal, IsEnabled = isNew },
+                // Whether partial matches are allowed
+                chkPartial = { IsChecked = found.AllowPartialMatch }
             };
 
             bool result = editor.ShowDialog().Value;
