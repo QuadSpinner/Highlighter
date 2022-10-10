@@ -25,6 +25,10 @@
                     Padding="16,2,16,2"
                     Content="Modify"
                     IsDefault="True" />
+            <Button x:Name="btnDelete"
+                    Margin="8,0,0,0"   
+                    Padding="16,2,16,2"
+                    Content="Delete" />
             <Button x:Name="btnCancel"
                     Margin="8,0,0,0"
                     Padding="16,2,16,2"
@@ -62,36 +66,57 @@
 
         <Border Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" DockPanel.Dock="Top">
 
-            <StackPanel Margin="8" Orientation="Horizontal">
-                <Label VerticalAlignment="Center" Content="Shape" />
-                <ComboBox x:Name="cboShape"
+            <StackPanel Orientation="Vertical">
+                <StackPanel Margin="8" Orientation="Horizontal">
+                    <Label VerticalAlignment="Center" Content="Shape" />
+                    <ComboBox x:Name="cboShape"
                           Width="110"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center"
                           SelectedIndex="0">
-                    <ComboBoxItem Content="Tag" />
-                    <ComboBoxItem Content="Underline Tag" />
-                    <ComboBoxItem Content="Full Line" />
-                    <ComboBoxItem Content="Full Underline" />
-                </ComboBox>
+                        <ComboBoxItem Content="Tag" />
+                        <ComboBoxItem Content="Underline Tag" />
+                        <ComboBoxItem Content="Full Line" />
+                        <ComboBoxItem Content="Full Underline" />
+                    </ComboBox>
 
-                <Label VerticalAlignment="Center" Content="Blur" />
-                <ComboBox x:Name="cboBlur"
-                          Width="110"
+                    <Label VerticalAlignment="Center" Content="Blur" />
+                    <ComboBox x:Name="cboBlur"
+                          Width="85"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center"
                           SelectedIndex="0">
-                    <ComboBoxItem Content="None" />
-                    <ComboBoxItem Content="Low" />
-                    <ComboBoxItem Content="Medium" />
-                    <ComboBoxItem Content="High" />
-                    <ComboBoxItem Content="Ultra" />
-                </ComboBox>
+                        <ComboBoxItem Content="None" />
+                        <ComboBoxItem Content="Low" />
+                        <ComboBoxItem Content="Medium" />
+                        <ComboBoxItem Content="High" />
+                        <ComboBoxItem Content="Ultra" />
+                    </ComboBox>
 
-                <CheckBox x:Name="chkActive"
+                    <CheckBox x:Name="chkActive"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center"
-                          Content="Rule is active" />
+                          ToolTip="Enable or disable the rule. This will not delete the rule."
+                          Content="Active" />
+                </StackPanel>
+                <StackPanel Margin="55,0,8,8" Orientation="Horizontal">
+
+                    <CheckBox x:Name="chkPartial"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          Content="Allow Partial Matches" />
+
+                    <CheckBox x:Name="chkCaseSensitive"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          Content="Case Sensitive" />
+
+                    <CheckBox x:Name="chkGlobal"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center" IsChecked="True"
+                          ToolTip="Global rules work across all solutions. When unchecked, the rule is created only for the solution and stored in the ~\.vs\Highlights.xml file."
+                          Content="Global Rule" />
+                </StackPanel>
             </StackPanel>
         </Border>
         <ListBox x:Name="lstColors"

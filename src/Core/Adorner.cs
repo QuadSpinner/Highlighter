@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Formatting;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Formatting;
 
 namespace Highlighter.Core
 {
@@ -23,7 +23,7 @@ namespace Highlighter.Core
         private Thickness tNone = new(0, 0, 0, 0);
         private Options options;
         private char[] firstChars;
-        private IEnumerable<HighlightTag> tags;
+        private List<HighlightTag> tags;
         private Performance performance = Performance.Normal;
 
         public Adorner(IWpfTextView view)
@@ -47,20 +47,51 @@ namespace Highlighter.Core
 
             RefreshCriteria();
 
-            layer = view.GetAdornmentLayer("HighlighterHighlighter");
+            layer = view.GetAdornmentLayer("Highlighter");
 
             this.view = view;
             this.view.LayoutChanged += OnLayoutChanged;
         }
 
-        private void HighlighterOptions_Saved(Options obj) => RefreshCriteria();
+        private void HighlighterOptions_Saved(Options obj)
+        {
+            layer.RemoveAllAdornments();
+
+            RefreshCriteria();
+
+            try
+            {
+                foreach (ITextViewLine line in view.TextViewLines)
+                {
+                    if (line.VisibilityState == VisibilityState.FullyVisible)
+                        CreateVisuals(line);
+                }
+            }
+            catch (ObjectDisposedException ex)
+            {
+                return;
+            }
+        }
 
         private void RefreshCriteria()
         {
             performance = options.Performance;
-            tags = options.ColorTags.Where(x => x.IsActive);
-            //string path = Path.GetDirectoryName(VS.Solutions.GetCurrentSolution().FullPath) + "\\.vs\\Highlighter.xml";
-            firstChars = options.ColorTags.Select(k => k.Criteria[0]).Distinct().ToArray();
+
+            // Recreate Tags list
+            tags = options.ColorTags.Where(x => x.IsActive).ToList();
+
+            // Add Solution-scoped Tags, if any
+            if (options.SolutionTags != null && options.SolutionTags.Any())
+            {
+                tags.AddRange(options.SolutionTags.Where(x => x.IsActive));
+            }
+
+            List<char> chars = new List<char>();
+
+            chars.AddRange(tags.Select(y => y.Criteria[0]));
+            chars.AddRange(tags.Where(x => !x.IsCaseSensitive).Select(y => y.Criteria.ToUpper()[0]));
+            firstChars = chars.ToArray();
+            //firstChars = options.ColorTags.Select(k => (k.IsCaseSensitive ? k.Criteria[0] : char.ToUpperInvariant(k.Criteria[0]), k.IsCaseSensitive)).Distinct().ToArray();
         }
 
         internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
@@ -90,16 +121,15 @@ namespace Highlighter.Core
                     foreach (var tag in tags)
                     {
                         string keyword = tag.Criteria.Trim();
-
-                        if (view.TextSnapshot[i] == keyword[0] &&
+                        if (FirstCharacterEquals(view.TextSnapshot[i], keyword[0], tag.IsCaseSensitive) &&
                             i <= end - keyword.Length &&
-                            view.TextSnapshot.GetText(i, keyword.Length) == keyword &&
-                            Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(Math.Max(0, i - 1), 1))) &&
-                            Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(i + keyword.Length, 1))))
+                            CompareWords(view.TextSnapshot.GetText(i, keyword.Length), keyword, tag.IsCaseSensitive)
+                            && CheckWholeWordsMatch(view.TextSnapshot, i, keyword, tag.AllowPartialMatch))
                         {
                             SnapshotSpan span = new(view.TextSnapshot, Span.FromBounds(i, i + keyword.Length));
 
-                            Geometry markerGeometry = textViewLines.GetMarkerGeometry(span, true, tag.Blur == BlurIntensity.None ? tNone : tBlur);
+                            Geometry markerGeometry = textViewLines.GetMarkerGeometry(span, true,
+                                tag.Blur == BlurIntensity.None ? tNone : tBlur);
 
                             if (markerGeometry != null)
                             {
@@ -116,21 +146,58 @@ namespace Highlighter.Core
             }
         }
 
-        private void AddMarker(SnapshotSpan span, Geometry markerGeometry, HighlightTag ct)
+        private static bool FirstCharacterEquals(char text, char keyword, bool isCaseSensitive)
+        {
+            if (isCaseSensitive)
+            {
+                return text == keyword;
+            }
+            else
+            {
+                return char.ToUpperInvariant(text) == char.ToUpperInvariant(keyword);
+            }
+        }
+
+        private static bool CompareWords(string text, string keyword, bool isCaseSensitive)
+        {
+            if (isCaseSensitive)
+            {
+                return text == keyword;
+            }
+            else
+            {
+                return string.Equals(text, keyword, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        public bool CheckWholeWordsMatch(ITextSnapshot textSnapshot, int i, string keyword, bool allowPartialMatch)
+        {
+            if (allowPartialMatch)
+            {
+                return true;
+            }
+            else
+            {
+                return Helper.escapes.Contains(Convert.ToChar(textSnapshot.GetText(Math.Max(0, i - 1), 1))) &&
+                       Helper.escapes.Contains(Convert.ToChar(textSnapshot.GetText(i + keyword.Length, 1)));
+            }
+        }
+
+        private void AddMarker(SnapshotSpan span, Geometry markerGeometry, HighlightTag tag)
         {
             Rectangle r = new()
             {
-                Fill = new SolidColorBrush(ct.Color.ChangeAlpha(60)),
+                Fill = new SolidColorBrush(tag.Color.ChangeAlpha(60)),
                 RadiusX = cornerRadius,
                 RadiusY = cornerRadius,
                 Width = markerGeometry.Bounds.Width,
                 Height = markerGeometry.Bounds.Height,
-                Stroke = new SolidColorBrush(ct.Color.ChangeAlpha(100))
+                Stroke = new SolidColorBrush(tag.Color.ChangeAlpha(100))
             };
 
-            bool isLine = ct.IsLine();
+            bool isLine = tag.IsLine();
 
-            if (ct.IsUnder())
+            if (tag.IsUnder())
             {
                 r.Height = 4.0;
             }
@@ -140,7 +207,7 @@ namespace Highlighter.Core
                 r.Width = view.ViewportWidth - markerGeometry.Bounds.Left;
             }
 
-            if (performance != Performance.NoEffects && ct.Blur != BlurIntensity.None)
+            if (performance != Performance.NoEffects && tag.Blur != BlurIntensity.None)
             {
                 r.Effect = new BlurEffect
                 {
@@ -148,8 +215,7 @@ namespace Highlighter.Core
                     RenderingBias = RenderingBias.Performance
                 };
 
-
-                switch (ct.Blur)
+                switch (tag.Blur)
                 {
                     case BlurIntensity.Low:
                         ((SolidColorBrush)r.Fill).Color.ChangeAlpha(80);
@@ -184,10 +250,10 @@ namespace Highlighter.Core
             if (r.Fill.CanFreeze)
                 r.Fill.Freeze();
 
-            if(r.Stroke is {CanFreeze: true})
+            if (r.Stroke is { CanFreeze: true })
                 r.Stroke.Freeze();
-            
-            if (ct.IsUnder())
+
+            if (tag.IsUnder())
             {
                 Canvas.SetTop(r, markerGeometry.Bounds.Top + markerGeometry.Bounds.Height - 2);
             }

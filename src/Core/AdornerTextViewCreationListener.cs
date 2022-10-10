@@ -23,7 +23,7 @@ namespace Highlighter.Core
         /// after the selection layer in the Z-order
         /// </summary>
         [Export(typeof(AdornmentLayerDefinition))]
-        [Name("HighlighterHighlighter")]
+        [Name("Highlighter")]
         [Order(After = PredefinedAdornmentLayers.Selection, Before = PredefinedAdornmentLayers.Text)]
         [TextViewRole(PredefinedTextViewRoles.Document)]
         private AdornmentLayerDefinition editorAdornmentLayer;

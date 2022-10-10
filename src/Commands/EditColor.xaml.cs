@@ -1,8 +1,8 @@
-﻿using System.Windows;
+﻿using Highlighter.Core;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
-using Highlighter.Core;
 using MessageBox = System.Windows.MessageBox;
 
 namespace Highlighter.Commands
@@ -17,14 +17,25 @@ namespace Highlighter.Commands
 
             btnModify.Click += BtnModify_Click;
             btnCancel.Click += BtnCancel_Click;
+            btnDelete.Click += BtnDelete_Click;
+        }
+
+        private void BtnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("Are you sure you want to delete this rule?", "Delete Rule", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                delete = true;
+                Close();
+            }
         }
 
         private bool loading;
+        internal bool delete;
 
         private void EditColor_Loaded(object sender, RoutedEventArgs e)
         {
             string hexMatch = TagToEdit.Color.ColorToHex();
-            
+
             foreach (Color color in Helper.colors)
             {
                 ListBoxItem l = new()
@@ -39,7 +50,6 @@ namespace Highlighter.Commands
             }
 
             loading = true;
-
             cboShape.SelectedIndex = (int)TagToEdit.Shape;
             cboBlur.SelectedIndex = (int)TagToEdit.Blur;
             //txtCriteria.Text = TagToEdit.Criteria;
@@ -63,13 +73,13 @@ namespace Highlighter.Commands
         {
             TagToEdit.Shape = (TagShape)cboShape.SelectedIndex;
             TagToEdit.Blur = (BlurIntensity)cboBlur.SelectedIndex;
-            //TagToEdit.Criteria = txtCriteria.Text;
             TagToEdit.IsActive = chkActive.IsChecked == true;
-            TagToEdit.Color = lstColors.SelectedItem != null ? (Color) (lstColors.SelectedItem as ListBoxItem).Tag : TagToEdit.Color;
+            TagToEdit.AllowPartialMatch = chkPartial.IsChecked == true;
+            TagToEdit.IsCaseSensitive = chkCaseSensitive.IsChecked == true;
+            TagToEdit.Color = lstColors.SelectedItem != null ? (Color)(lstColors.SelectedItem as ListBoxItem).Tag : TagToEdit.Color;
             DialogResult = true;
             Close();
         }
-
 
         internal void CreatePreview()
         {
@@ -80,13 +90,13 @@ namespace Highlighter.Commands
                 if (TagToEdit == null)
                     return;
 
-
                 HighlightTag tag = new()
                 {
                     Shape = (TagShape)cboShape.SelectedIndex,
                     Blur = (BlurIntensity)cboBlur.SelectedIndex,
                     Criteria = TagToEdit.Criteria,
                     IsActive = chkActive.IsChecked == true,
+                    AllowPartialMatch = chkPartial.IsChecked == true,
                     Color = lstColors.SelectedItem != null ? (Color)(lstColors.SelectedItem as ListBoxItem).Tag : TagToEdit.Color
                 };
 
@@ -100,7 +110,6 @@ namespace Highlighter.Commands
 
                 r.Fill = new SolidColorBrush(Color.FromArgb(60, tag.Color.R, tag.Color.G, tag.Color.B));
                 r.Stroke = new SolidColorBrush(Color.FromArgb(100, tag.Color.R, tag.Color.G, tag.Color.B));
-
 
                 if (tag.Blur != BlurIntensity.None)
                 {
@@ -158,7 +167,6 @@ namespace Highlighter.Commands
             {
                 MessageBox.Show(ex.StackTrace);
             }
-
         }
     }
 }
