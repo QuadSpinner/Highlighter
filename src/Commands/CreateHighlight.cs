@@ -57,7 +57,8 @@ namespace Highlighter.Commands
                 // Whether rule is global or not, disallow editing of existing rule
                 chkGlobal = { IsChecked = isNew ? Remember.LastGlobal : !notGlobal, IsEnabled = isNew },
                 // Whether partial matches are allowed
-                chkPartial = { IsChecked = found.AllowPartialMatch }
+                chkPartial = { IsChecked = found.AllowPartialMatch },
+                chkCaseSensitive = { IsChecked = found.IsCaseSensitive }
             };
 
             bool result = editor.ShowDialog().Value;

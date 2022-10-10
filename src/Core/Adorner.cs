@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.Text.Formatting;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
-using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Formatting;
 
 namespace Highlighter.Core
 {
@@ -47,7 +47,7 @@ namespace Highlighter.Core
 
             RefreshCriteria();
 
-            layer = view.GetAdornmentLayer("HighlighterHighlighter");
+            layer = view.GetAdornmentLayer("Highlighter");
 
             this.view = view;
             this.view.LayoutChanged += OnLayoutChanged;
@@ -86,7 +86,12 @@ namespace Highlighter.Core
                 tags.AddRange(options.SolutionTags.Where(x => x.IsActive));
             }
 
-            firstChars = tags.Select(k => k.Criteria[0]).Distinct().ToArray();
+            List<char> chars = new List<char>();
+
+            chars.AddRange(tags.Select(y => y.Criteria[0]));
+            chars.AddRange(tags.Where(x => !x.IsCaseSensitive).Select(y => y.Criteria.ToUpper()[0]));
+            firstChars = chars.ToArray();
+            //firstChars = options.ColorTags.Select(k => (k.IsCaseSensitive ? k.Criteria[0] : char.ToUpperInvariant(k.Criteria[0]), k.IsCaseSensitive)).Distinct().ToArray();
         }
 
         internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
@@ -116,35 +121,65 @@ namespace Highlighter.Core
                     foreach (var tag in tags)
                     {
                         string keyword = tag.Criteria.Trim();
-
-                        if (view.TextSnapshot[i] == keyword[0] &&
+                        if (FirstCharacterEquals(view.TextSnapshot[i], keyword[0], tag.IsCaseSensitive) &&
                             i <= end - keyword.Length &&
-                            view.TextSnapshot.GetText(i, keyword.Length) == keyword)
+                            CompareWords(view.TextSnapshot.GetText(i, keyword.Length), keyword, tag.IsCaseSensitive)
+                            && CheckWholeWordsMatch(view.TextSnapshot, i, keyword, tag.AllowPartialMatch))
                         {
+                            SnapshotSpan span = new(view.TextSnapshot, Span.FromBounds(i, i + keyword.Length));
 
-                            if (
-                                tag.AllowPartialMatch == true
-                                || (tag.AllowPartialMatch == false
-                                    && Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(Math.Max(0, i - 1), 1)))
-                                    && Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(i + keyword.Length, 1)))))
+                            Geometry markerGeometry = textViewLines.GetMarkerGeometry(span, true,
+                                tag.Blur == BlurIntensity.None ? tNone : tBlur);
+
+                            if (markerGeometry != null)
                             {
-                                SnapshotSpan span = new(view.TextSnapshot, Span.FromBounds(i, i + keyword.Length));
-
-                                Geometry markerGeometry = textViewLines.GetMarkerGeometry(span, true, tag.Blur == BlurIntensity.None ? tNone : tBlur);
-
-                                if (markerGeometry != null)
+                                if (!geometries.Any(g => g.FillContainsWithDetail(markerGeometry) >
+                                                         IntersectionDetail.Empty))
                                 {
-                                    if (!geometries.Any(g => g.FillContainsWithDetail(markerGeometry) >
-                                                             IntersectionDetail.Empty))
-                                    {
-                                        geometries.Add(markerGeometry);
-                                        AddMarker(span, markerGeometry, tag);
-                                    }
+                                    geometries.Add(markerGeometry);
+                                    AddMarker(span, markerGeometry, tag);
                                 }
                             }
                         }
                     }
                 }
+            }
+        }
+
+        private static bool FirstCharacterEquals(char text, char keyword, bool isCaseSensitive)
+        {
+            if (isCaseSensitive)
+            {
+                return text == keyword;
+            }
+            else
+            {
+                return char.ToUpperInvariant(text) == char.ToUpperInvariant(keyword);
+            }
+        }
+
+        private static bool CompareWords(string text, string keyword, bool isCaseSensitive)
+        {
+            if (isCaseSensitive)
+            {
+                return text == keyword;
+            }
+            else
+            {
+                return string.Equals(text, keyword, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        public bool CheckWholeWordsMatch(ITextSnapshot textSnapshot, int i, string keyword, bool allowPartialMatch)
+        {
+            if (allowPartialMatch)
+            {
+                return true;
+            }
+            else
+            {
+                return Helper.escapes.Contains(Convert.ToChar(textSnapshot.GetText(Math.Max(0, i - 1), 1))) &&
+                       Helper.escapes.Contains(Convert.ToChar(textSnapshot.GetText(i + keyword.Length, 1)));
             }
         }
 
@@ -180,7 +215,6 @@ namespace Highlighter.Core
                     RenderingBias = RenderingBias.Performance
                 };
 
-
                 switch (tag.Blur)
                 {
                     case BlurIntensity.Low:
@@ -205,22 +239,19 @@ namespace Highlighter.Core
                 }
 
                 r.Stroke = null;
+
+                if (r.Effect.CanFreeze)
+                    r.Effect.Freeze();
             }
 
             // Align the image with the top of the bounds of the text geometry
             Canvas.SetLeft(r, markerGeometry.Bounds.Left);
-            
-            // Freeze resources to improve performance
-            {
-                if (r.Effect is { CanFreeze: true })
-                    r.Effect.Freeze();
 
-                if (r.Fill.CanFreeze)
-                    r.Fill.Freeze();
+            if (r.Fill.CanFreeze)
+                r.Fill.Freeze();
 
-                if (r.Stroke is { CanFreeze: true })
-                    r.Stroke.Freeze();
-            }
+            if (r.Stroke is { CanFreeze: true })
+                r.Stroke.Freeze();
 
             if (tag.IsUnder())
             {

@@ -7,7 +7,7 @@
                        xmlns:shell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
                        xmlns:toolkit="clr-namespace:Community.VisualStudio.Toolkit;assembly=Community.VisualStudio.Toolkit"
                        Title="Modify Tag"
-                       Width="580"
+                       Width="480"
                        toolkit:Themes.UseVsTheme="False"
                        Background="{DynamicResource {x:Static shell:VsBrushes.CommandBarGradientKey}}"
                        Foreground="{DynamicResource {x:Static shell:VsBrushes.WindowTextKey}}"
@@ -66,48 +66,57 @@
 
         <Border Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" DockPanel.Dock="Top">
 
-            <StackPanel Margin="8" Orientation="Horizontal">
-                <Label VerticalAlignment="Center" Content="Shape" />
-                <ComboBox x:Name="cboShape"
+            <StackPanel Orientation="Vertical">
+                <StackPanel Margin="8" Orientation="Horizontal">
+                    <Label VerticalAlignment="Center" Content="Shape" />
+                    <ComboBox x:Name="cboShape"
                           Width="110"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center"
                           SelectedIndex="0">
-                    <ComboBoxItem Content="Tag" />
-                    <ComboBoxItem Content="Underline Tag" />
-                    <ComboBoxItem Content="Full Line" />
-                    <ComboBoxItem Content="Full Underline" />
-                </ComboBox>
+                        <ComboBoxItem Content="Tag" />
+                        <ComboBoxItem Content="Underline Tag" />
+                        <ComboBoxItem Content="Full Line" />
+                        <ComboBoxItem Content="Full Underline" />
+                    </ComboBox>
 
-                <Label VerticalAlignment="Center" Content="Blur" />
-                <ComboBox x:Name="cboBlur"
+                    <Label VerticalAlignment="Center" Content="Blur" />
+                    <ComboBox x:Name="cboBlur"
                           Width="85"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center"
                           SelectedIndex="0">
-                    <ComboBoxItem Content="None" />
-                    <ComboBoxItem Content="Low" />
-                    <ComboBoxItem Content="Medium" />
-                    <ComboBoxItem Content="High" />
-                    <ComboBoxItem Content="Ultra" />
-                </ComboBox>
+                        <ComboBoxItem Content="None" />
+                        <ComboBoxItem Content="Low" />
+                        <ComboBoxItem Content="Medium" />
+                        <ComboBoxItem Content="High" />
+                        <ComboBoxItem Content="Ultra" />
+                    </ComboBox>
 
-                <CheckBox x:Name="chkActive"
+                    <CheckBox x:Name="chkActive"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center"
                           ToolTip="Enable or disable the rule. This will not delete the rule."
                           Content="Active" />
+                </StackPanel>
+                <StackPanel Margin="8,0,8,8" Orientation="Horizontal">
 
-                <CheckBox x:Name="chkPartial"
+                    <CheckBox x:Name="chkPartial"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center"
                           Content="Partial Match" />
 
-                <CheckBox x:Name="chkGlobal"
+                    <CheckBox x:Name="chkCaseSensitive"
+                          Margin="0,0,8,0"
+                          VerticalAlignment="Center"
+                          Content="Case Sensitive" />
+
+                    <CheckBox x:Name="chkGlobal"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center" IsChecked="True"
                           ToolTip="Global rules work across all solutions. When unchecked, the rule is created only for the solution and stored in the ~\.vs\Highlights.xml file."
                           Content="Global Rule" />
+                </StackPanel>
             </StackPanel>
         </Border>
         <ListBox x:Name="lstColors"

@@ -75,6 +75,7 @@ namespace Highlighter.Commands
             TagToEdit.Blur = (BlurIntensity)cboBlur.SelectedIndex;
             TagToEdit.IsActive = chkActive.IsChecked == true;
             TagToEdit.AllowPartialMatch = chkPartial.IsChecked == true;
+            TagToEdit.IsCaseSensitive = chkCaseSensitive.IsChecked == true;
             TagToEdit.Color = lstColors.SelectedItem != null ? (Color)(lstColors.SelectedItem as ListBoxItem).Tag : TagToEdit.Color;
             DialogResult = true;
             Close();

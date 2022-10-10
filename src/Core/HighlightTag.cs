@@ -18,6 +18,7 @@ namespace Highlighter.Core
         
         public bool IsActive { get; set; } = true;
         public bool AllowPartialMatch { get; set; } = false;
+        public bool IsCaseSensitive { get; set; }
 
         internal bool IsUnder() => Shape is TagShape.LineUnder or TagShape.TagUnder;
         
