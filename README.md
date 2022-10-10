@@ -9,8 +9,10 @@ Free download on [Visual Studio Marketplace](https://marketplace.visualstudio.co
 **Features**
 - Highlight any arbitrary term
 - 4 different highlight shapes
+- Case sensitive and partial matches
 - Toggle highlights easily
 - Performant even on older machines and VMs
+- Solution-level rules (Source control friendly)
 
 > Requires Visual Studio 2022 Community Edition or higher. It should work in all text editor surfaces.
 
@@ -26,11 +28,13 @@ To create a highlight, select the desired word or phrase and press `Ctrl + Num P
 
 If the selection is an existing highlight, then you will be able to edit it. If it is a new one, you get to define its shape.
 
-![](images/editor.png)
+![](images/editor_new.png)
 
-You can choose the tag shape, optional blur, and color. The Highlight Editor window shows you a preview to help you choose the right shape.
+You can choose the tag shape, optional blur, and color. The Highlight Editor window shows you a preview to help you choose the right shape. You can also choose whether to allow partial matches or toggle case sensitivity.
 
-For an existing rule, you can also uncheck "Rule is Active" to disable the rule without deleting it. To delete a rule, see Options below.
+The `Global Rule` option allows you to declare a rule globally across all solutions. Unchecking the option creates a rule scoped to the current solution and made portable for transport. Such rules are stored in the `~\.vs\Highlights.xml` and can be checked into source control for easy sharing.
+
+For an existing rule, you can also uncheck "Rule is Active" to disable the rule without deleting it, or select Delete to remove the permanently.
 
 ## Highlight Shapes
 
@@ -48,12 +52,3 @@ There are 12 built in rules for creating dividers. `//1` through `//6` and `//#`
 ![](images/options.png)
 
 The Options let you edit the rules en mass, as well as use color values not in the default palette. You can delete highlights here.
-
-# Coming Soon
-
-## Solution-scoped rules
-
-Highlight rules scoped to the current solution and made portable for transport.
-
-More options.
-
