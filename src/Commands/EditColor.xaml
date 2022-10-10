@@ -99,12 +99,12 @@
                           ToolTip="Enable or disable the rule. This will not delete the rule."
                           Content="Active" />
                 </StackPanel>
-                <StackPanel Margin="8,0,8,8" Orientation="Horizontal">
+                <StackPanel Margin="55,0,8,8" Orientation="Horizontal">
 
                     <CheckBox x:Name="chkPartial"
                           Margin="0,0,8,0"
                           VerticalAlignment="Center"
-                          Content="Partial Match" />
+                          Content="Allow Partial Matches" />
 
                     <CheckBox x:Name="chkCaseSensitive"
                           Margin="0,0,8,0"
