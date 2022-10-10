@@ -23,7 +23,7 @@ namespace Highlighter.Core
         private Thickness tNone = new(0, 0, 0, 0);
         private Options options;
         private char[] firstChars;
-        private IEnumerable<HighlightTag> tags;
+        private List<HighlightTag> tags;
         private Performance performance = Performance.Normal;
 
         public Adorner(IWpfTextView view)
@@ -55,23 +55,38 @@ namespace Highlighter.Core
 
         private void HighlighterOptions_Saved(Options obj)
         {
-            RefreshCriteria();
-
             layer.RemoveAllAdornments();
 
-            foreach (ITextViewLine line in view.TextViewLines)
+            RefreshCriteria();
+
+            try
             {
-                if (line.VisibilityState == VisibilityState.FullyVisible)
-                    CreateVisuals(line);
+                foreach (ITextViewLine line in view.TextViewLines)
+                {
+                    if (line.VisibilityState == VisibilityState.FullyVisible)
+                        CreateVisuals(line);
+                }
+            }
+            catch (ObjectDisposedException ex)
+            {
+                return;
             }
         }
 
         private void RefreshCriteria()
         {
             performance = options.Performance;
-            tags = options.ColorTags.Where(x => x.IsActive);
-            //string path = Path.GetDirectoryName(VS.Solutions.GetCurrentSolution().FullPath) + "\\.vs\\Highlighter.xml";
-            firstChars = options.ColorTags.Select(k => k.Criteria[0]).Distinct().ToArray();
+
+            // Recreate Tags list
+            tags = options.ColorTags.Where(x => x.IsActive).ToList();
+
+            // Add Solution-scoped Tags, if any
+            if (options.SolutionTags != null && options.SolutionTags.Any())
+            {
+                tags.AddRange(options.SolutionTags.Where(x => x.IsActive));
+            }
+
+            firstChars = tags.Select(k => k.Criteria[0]).Distinct().ToArray();
         }
 
         internal void OnLayoutChanged(object sender, TextViewLayoutChangedEventArgs e)
@@ -104,21 +119,27 @@ namespace Highlighter.Core
 
                         if (view.TextSnapshot[i] == keyword[0] &&
                             i <= end - keyword.Length &&
-                            view.TextSnapshot.GetText(i, keyword.Length) == keyword &&
-                            Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(Math.Max(0, i - 1), 1))) &&
-                            Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(i + keyword.Length, 1))))
+                            view.TextSnapshot.GetText(i, keyword.Length) == keyword)
                         {
-                            SnapshotSpan span = new(view.TextSnapshot, Span.FromBounds(i, i + keyword.Length));
 
-                            Geometry markerGeometry = textViewLines.GetMarkerGeometry(span, true, tag.Blur == BlurIntensity.None ? tNone : tBlur);
-
-                            if (markerGeometry != null)
+                            if (
+                                tag.AllowPartialMatch == true
+                                || (tag.AllowPartialMatch == false
+                                    && Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(Math.Max(0, i - 1), 1)))
+                                    && Helper.escapes.Contains(Convert.ToChar(view.TextSnapshot.GetText(i + keyword.Length, 1)))))
                             {
-                                if (!geometries.Any(g => g.FillContainsWithDetail(markerGeometry) >
-                                                         IntersectionDetail.Empty))
+                                SnapshotSpan span = new(view.TextSnapshot, Span.FromBounds(i, i + keyword.Length));
+
+                                Geometry markerGeometry = textViewLines.GetMarkerGeometry(span, true, tag.Blur == BlurIntensity.None ? tNone : tBlur);
+
+                                if (markerGeometry != null)
                                 {
-                                    geometries.Add(markerGeometry);
-                                    AddMarker(span, markerGeometry, tag);
+                                    if (!geometries.Any(g => g.FillContainsWithDetail(markerGeometry) >
+                                                             IntersectionDetail.Empty))
+                                    {
+                                        geometries.Add(markerGeometry);
+                                        AddMarker(span, markerGeometry, tag);
+                                    }
                                 }
                             }
                         }
@@ -127,21 +148,21 @@ namespace Highlighter.Core
             }
         }
 
-        private void AddMarker(SnapshotSpan span, Geometry markerGeometry, HighlightTag ct)
+        private void AddMarker(SnapshotSpan span, Geometry markerGeometry, HighlightTag tag)
         {
             Rectangle r = new()
             {
-                Fill = new SolidColorBrush(ct.Color.ChangeAlpha(60)),
+                Fill = new SolidColorBrush(tag.Color.ChangeAlpha(60)),
                 RadiusX = cornerRadius,
                 RadiusY = cornerRadius,
                 Width = markerGeometry.Bounds.Width,
                 Height = markerGeometry.Bounds.Height,
-                Stroke = new SolidColorBrush(ct.Color.ChangeAlpha(100))
+                Stroke = new SolidColorBrush(tag.Color.ChangeAlpha(100))
             };
 
-            bool isLine = ct.IsLine();
+            bool isLine = tag.IsLine();
 
-            if (ct.IsUnder())
+            if (tag.IsUnder())
             {
                 r.Height = 4.0;
             }
@@ -151,7 +172,7 @@ namespace Highlighter.Core
                 r.Width = view.ViewportWidth - markerGeometry.Bounds.Left;
             }
 
-            if (performance != Performance.NoEffects && ct.Blur != BlurIntensity.None)
+            if (performance != Performance.NoEffects && tag.Blur != BlurIntensity.None)
             {
                 r.Effect = new BlurEffect
                 {
@@ -160,7 +181,7 @@ namespace Highlighter.Core
                 };
 
 
-                switch (ct.Blur)
+                switch (tag.Blur)
                 {
                     case BlurIntensity.Low:
                         ((SolidColorBrush)r.Fill).Color.ChangeAlpha(80);
@@ -184,21 +205,24 @@ namespace Highlighter.Core
                 }
 
                 r.Stroke = null;
-
-                if (r.Effect.CanFreeze)
-                    r.Effect.Freeze();
             }
 
             // Align the image with the top of the bounds of the text geometry
             Canvas.SetLeft(r, markerGeometry.Bounds.Left);
+            
+            // Freeze resources to improve performance
+            {
+                if (r.Effect is { CanFreeze: true })
+                    r.Effect.Freeze();
 
-            if (r.Fill.CanFreeze)
-                r.Fill.Freeze();
+                if (r.Fill.CanFreeze)
+                    r.Fill.Freeze();
 
-            if (r.Stroke is { CanFreeze: true })
-                r.Stroke.Freeze();
+                if (r.Stroke is { CanFreeze: true })
+                    r.Stroke.Freeze();
+            }
 
-            if (ct.IsUnder())
+            if (tag.IsUnder())
             {
                 Canvas.SetTop(r, markerGeometry.Bounds.Top + markerGeometry.Bounds.Height - 2);
             }

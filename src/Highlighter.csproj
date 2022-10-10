@@ -67,6 +67,7 @@
     <Compile Include="Core\AdornerTextViewCreationListener.cs" />
     <Compile Include="Core\Enums.cs" />
     <Compile Include="Core\HighlightTag.cs" />
+    <Compile Include="Remember.cs" />
     <Compile Include="Options\HighlighterOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\CreateHighlight.cs" />

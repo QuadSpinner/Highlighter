@@ -1,7 +1,6 @@
 ﻿using System.Resources;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Highlighter;
 
 [assembly: AssemblyTitle("Highlighter")]
 [assembly: AssemblyDescription("")]
@@ -14,8 +13,8 @@ using Highlighter;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("2.0.0.1")]
-[assembly: AssemblyFileVersion("2.0.0.1")]
+[assembly: AssemblyVersion("1.0.7.0")]
+[assembly: AssemblyFileVersion("1.0.7.0")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
 namespace Highlighter.Properties
